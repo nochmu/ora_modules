@@ -1,6 +1,6 @@
 # A simple module system for the Oracle Database
 
-# Module 
+# Definition: Module 
 A module is a schema with dependency management. 
 A module can publish some objects so that other modules can use them.
 
