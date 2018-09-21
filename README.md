@@ -10,11 +10,9 @@ A module can publish some objects so that other modules can use them.
 CREATE PROCEDURE 
 /* Installs the module for a specific user.
    %param p_user   - install for this user
-   %param p_prefix - Prefix for the synonyms. Using a prefix allows to install multiple versions.
 */
 install(
-    p_user varchar2 default USER,
-    p_prefix varchar2 default null
+    p_user varchar2 default USER
 )
 AUTHID current_user
 ```
@@ -23,11 +21,9 @@ AUTHID current_user
 CREATE PROCEDURE 
 /* Uninstalls the module for a specific user.
    %param p_user - uninstall for this user
-   %param p_prefix - Prefix for the installed synonyms.
 */
 uninstall(
-    p_user varchar2 default USER,
-    p_prefix varchar2 default null
+    p_user varchar2 default USER
 )
 AUTHID current_user
 ```
