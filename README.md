@@ -4,7 +4,7 @@
 A module is a schema with dependency management. 
 A module can publish some objects so that other modules can use them.
 
-## Specification
+## Specification v1
 
 ```
 CREATE PROCEDURE 
