@@ -30,6 +30,14 @@ CREATE PROCEDURE uninstall(
 AUTHID current_user
 ```
 
+## Default Implementation
+A default implementation can be installed with `make_modules.sql`. 
+```sql
+-- connected as DBA
+SYS@localhost:1531/MYPDB> ALTER SESSION SET current_schema=<my_module>;
+SYS@localhost:1531/MYPDB> @make_modules 
+SYS@localhost:1531/MYPDB> GRANT <my_module>_users TO test_user; 
+```
 
 
 # Run the test suite
