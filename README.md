@@ -48,6 +48,6 @@ SYS@localhost:1531/MYPDB> GRANT <my_module>_users TO test_user;
 $ export DEV_DB="localhost:1531/MYPDB"
 $ export DEV_DB_SYS="sys/welcome-1"
 
-$ make clean all
+$ make all
 
 ```
