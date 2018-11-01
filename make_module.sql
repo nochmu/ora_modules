@@ -10,7 +10,7 @@ DEFINE moduleRoleParam     = &1 ""
 -- Arg2: name of the table to store the module api | default: OMM_API_OBJECT_TBL
 COLUMN p NEW_VALUE 2 
 SELECT null p FROM dual where 1=2;
-DEFINE api_table_name = &2 OMM_API_OBJECT_TBL2
+DEFINE api_table_name = &2 OMM_API_OBJECT_TBL
 
 -- if(moduleRuleParam is null then: <current_schema>_users)
 COLUMN x NEW_VALUE v NOPRINT
