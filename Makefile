@@ -1,27 +1,32 @@
 .DEFAULT_GOAL = all
 
-SQLPLUS = sql
+SQLPLUS = sqlplus
 
-db_host = ${DEV_DB}
-db_sys  = ${DEV_DB_SYS}
+
+db_sys  = ${DEV_DB_SYS} as SYSDBA
+db_dba  = ${DEV_DB_DBA}
 db_test = test/test
+TWO_TASK = ${DEV_DB}
+
 
 sql_exec = echo 'exit' | $(SQLPLUS) -L -S
+sql_exec_SYS  = $(sql_exec) $(db_sys)
+sql_exec_DBA  = $(sql_exec) $(db_dba)
+sql_exec_TEST = $(sql_exec) $(db_test)
 
-.PHONY: test install all clean enter
 
-test: test.sql
-	$(sql_exec) $(db_test)@$(db_host) @test.sql
+.PHONY: test_all  install all clean enter
 
-install: install.sql
-	$(sql_exec) $(db_sys)@$(db_host) as SYSDBA @install.sql
 
-clean: clean.sql
-	$(sql_exec) $(db_sys)@$(db_host) as SYSDBA @clean.sql
+test: 
+	$(sql_exec_DBA)  @test_clean.sql
+	$(sql_exec_DBA)  @test_setup.sql
+	$(sql_exec_TEST) @test.sql
 
 enter:
-	$(SQLPLUS) -L $(db_sys)@$(db_host) as SYSDBA
+	$(SQLPLUS) -L $(db_sys)
 
-all: clean install test
+
+test_all: test install test
 	@ echo 'all: done.'
 

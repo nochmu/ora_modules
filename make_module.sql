@@ -1,20 +1,48 @@
--- Installs the necessary objects to use the current schema as module.
---
--- Required Privileges:
---     - CREATE PROCEDURE
---     - CREATE ROLE
---     - CREATE SYNONYM WITH ADMIN OPTION
---
--- Usage:
---    @make_module.sql [moduleRole=<current_schema>_users]
-
-
------------------------------------------------------------
+SET TERMOUT OFF
+SET VERIFY OFF
 
 -- Arg1: role to use the module | default: null => <current_schema>_users
-COLUMN p1 NEW_VALUE 1
-SELECT null p1 FROM dual where 1=2;
-DEFINE moduleRole = &1 ""
+COLUMN p NEW_VALUE 1
+SELECT null p FROM dual where 1=2;
+DEFINE moduleRoleParam     = &1 ""
+
+
+-- Arg2: name of the table to store the module api | default: OMM_API_OBJECT_TBL
+COLUMN p NEW_VALUE 2 
+SELECT null p FROM dual where 1=2;
+DEFINE api_table_name = &2 OMM_API_OBJECT_TBL2
+
+-- if(moduleRuleParam is null then: <current_schema>_users)
+COLUMN x NEW_VALUE v NOPRINT
+SELECT upper(DECODE(nvl('&moduleRoleParam', 'null'), 'null', (SYS_CONTEXT('userenv','current_schema')||'_users'),  '&moduleRoleParam' )) x FROM dual; 
+DEFINE moduleRole = &v; 
+
+SET TERMOUT ON
+SET VERIFY OFF
+
+PROMPT ################ Install ORA_MODULES  #########
+PROMPT # Module Role:  &moduleRole                   
+PROMPT # Object Table: &api_table_name             
+PROMPT ################
+
+--  Drop old objects
+SET VERIFY ON
+SET TERMOUT OFF
+WHENEVER SQLERROR CONTINUE;
+DROP TABLE &api_table_name;
+
+--  Create objects
+WHENEVER SQLERROR EXIT SQL.SQLCODE;
+SET TERMOUT ON
+
+CREATE TABLE &api_table_name.
+(
+    public_name  varchar2(128), 
+    private_name varchar2(128), 
+    privileges   varchar2(200), 
+    description  varchar2(4000),
+   CONSTRAINT &api_table_name._pk PRIMARY KEY(public_name)
+);
 
 
 REM PROCEDURE update_grants
@@ -41,16 +69,20 @@ AS
 			v_sql := 'GRANT  '||p_priv||' ON '||p_obj||' TO '||p_user;
 		END IF;
 
+        dbms_output.put_line(v_sql); 
 		execute immediate v_sql;
 	END;
 BEGIN
-	set_grant('get_the_answer', 'EXECUTE');
+    FOR c IN (SELECT private_name, privileges FROM &api_table_name. )
+    LOOP
+	    set_grant(c.private_name, c.privileges);
+    END LOOP; 
+
 END update_grants;
 /
 
-
 REM PROCEDURE update_synonyms
-CREATE or REPLACE PROCEDURE
+create or replace PROCEDURE
 /* Updates the alias synonyms installed in a specific schema.
  *   %param p_schema - into this schema
  *   %param p_name   -
@@ -86,12 +118,27 @@ AS
 		ELSE
 			v_sql := 'CREATE or REPLACE SYNONYM '||v_full_alias||' FOR '|| v_full_obj;
 		END IF;
-
+        dbms_output.put_line(v_sql); 
 		execute immediate v_sql;
 	END;
 BEGIN
-	set_alias('hello_world', 'get_the_answer');
+
+    DECLARE
+            TYPE rc_type IS ref cursor;
+            v_cursor rc_type;
+            v_entry  &api_table_name.%ROWTYPE; 
+    BEGIN
+        OPEN v_cursor for 'SELECT * FROM '||$$PLSQL_UNIT_OWNER||'.&api_table_name.';
+        LOOP
+            FETCH v_cursor INTO v_entry;
+            EXIT WHEN v_cursor%notfound;
+            set_alias(v_entry.public_name, v_entry.private_name);
+        END LOOP;
+        CLOSE v_cursor;
+   END;
+
 END update_synonyms;
+
 /
 
 
@@ -102,8 +149,8 @@ CREATE or REPLACE PROCEDURE
 
 */
 install(
-    p_user varchar2 default USER,
-    p_prefix varchar2 default null
+    p_user   varchar2 DEFAULT USER,
+    p_prefix varchar2 DEFAULT null
 )
 AUTHID current_user
 AS
@@ -128,8 +175,8 @@ uninstall(
 AUTHID current_user
 AS
 BEGIN
-	update_grants(p_user => p_user, p_revoke=>true);
 	update_synonyms(p_schema=>p_user, p_prefix => p_prefix,  p_drop => true);
+    update_grants(p_user => p_user, p_revoke=>true);
 END uninstall;
 /
 
@@ -146,7 +193,7 @@ DECLARE
 		execute immediate 'GRANT create synonym TO '||v_role;
 	END;
 BEGIN
-	v_role := nvl('&moduleRole', SYS_CONTEXT('userenv','current_schema')||'_users');
+	v_role := '&moduleRole';
 	create_role(v_role);
 END;
-/
+/ 

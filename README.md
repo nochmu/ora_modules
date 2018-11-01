@@ -29,21 +29,42 @@ AUTHID current_user
 ```
 
 ## Default Implementation
-A default implementation can be installed with `make_modules.sql`. 
+A default implementation can be installed with 
+
+`@make_module [<api_role> [<definition_table>]]`. 
+```
+api_role: 
+    To use the module, the <api_role> must be granted. 
+    The role must not yet exist.
+    default value: <module_schema>_users
+
+definition_table: 
+    The API definition is stored in a table. The name can be changed. 
+    default value: OMM_API_OBJECT_TBL
+```
+
+### Example 
 ```sql
 -- connected as DBA
-SYS@localhost:1531/MYPDB> ALTER SESSION SET current_schema=<my_module>;
-SYS@localhost:1531/MYPDB> @make_modules 
-SYS@localhost:1531/MYPDB> GRANT <my_module>_users TO test_user; 
+SQL> ALTER SESSION SET current_schema=plsql_utils;
+SQL> @make_modules 
+SQL> GRANT plsql_utils_users TO test_user; 
 ```
+
+
+
+### Define API Member
+
+See [test_define_api.sql](test_define_api.sql) how to define a new  API member.
+
 
 
 # Run the test suite
 
 ```bash
-$ export DEV_DB="localhost:1531/MYPDB"
-$ export DEV_DB_SYS="sys/welcome-1"
+$ export DEV_DB="localhost:1531/PDB"
+$ export DEV_DB_DBA="SYSTEM/Oracle12c3"
 
-$ make all
+$ make test_all  
 
 ```
