@@ -27,6 +27,6 @@ enter:
 	$(SQLPLUS) -L $(db_sys)
 
 
-test_all: test install test
+test_all: test
 	@ echo 'all: done.'
 
