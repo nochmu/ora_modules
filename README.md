@@ -6,7 +6,7 @@ A module can publish some objects so that other modules can use them.
 
 ## Specification v1
 
-```
+```sql
 CREATE PROCEDURE 
 /* Installs the module for a specific user.
    %param p_user   - install for this user
@@ -17,7 +17,7 @@ install(
 AUTHID current_user
 ```
 
-```
+```sql
 CREATE PROCEDURE 
 /* Uninstalls the module for a specific user.
    %param p_user - uninstall for this user
