@@ -188,6 +188,7 @@ DECLARE
 	IS
 	BEGIN
 		execute immediate 'CREATE ROLE '||p_role;
+                execute immediate 'GRANT select  ON &api_table_name TO '||p_role;
 		execute immediate 'GRANT execute ON install TO '||p_role;
 		execute immediate 'GRANT execute ON uninstall TO '||p_role;
 		execute immediate 'GRANT create synonym TO '||v_role;
