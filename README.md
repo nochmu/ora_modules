@@ -2,61 +2,18 @@
 
 # Definition: Module 
 A module is a schema with dependency management. 
-A module can publish some objects so that other modules can use them.
+A module can publish some objects (called `api`) so that other modules can use them.
 
-## Specification v1
 
-```
-CREATE PROCEDURE 
-/* Installs the module for a specific user.
-   %param p_user   - install for this user
-*/
-install(
-    p_user varchar2 default USER
-)
-AUTHID current_user
-```
-
-```
-CREATE PROCEDURE 
-/* Uninstalls the module for a specific user.
-   %param p_user - uninstall for this user
-*/
-uninstall(
-    p_user varchar2 default USER
-)
-AUTHID current_user
-```
-
-## Default Implementation
-A default implementation can be installed with 
-
-`@make_module [<api_role> [<definition_table>]]`. 
-```
-api_role: 
-    To use the module, the <api_role> must be granted. 
-    The role must not yet exist.
-    default value: <module_schema>_users
-
-definition_table: 
-    The API definition is stored in a table. The name can be changed. 
-    default value: OMM_API_OBJECT_TBL
-```
-
-### Example 
+### Create a module
 ```sql
 -- connected as DBA
-SQL> ALTER SESSION SET current_schema=plsql_utils;
-SQL> @make_modules 
-SQL> GRANT plsql_utils_users TO test_user; 
+SQL> ALTER SESSION SET current_schema=plutl;
+SQL> @make_module
 ```
 
-
-
-### Define API Member
-
-See [test_define_api.sql](test_define_api.sql) how to define a new  API member.
-
+### Requirements 
+- Oracle Database 12.2 or newer
 
 
 # Run the test suite
@@ -65,6 +22,6 @@ See [test_define_api.sql](test_define_api.sql) how to define a new  API member.
 $ export DEV_DB="localhost:1531/PDB"
 $ export DEV_DB_DBA="SYSTEM/Oracle12c3"
 
-$ make test_all  
+$ make test 
 
 ```

@@ -1,7 +1,6 @@
-
-define api_table_name = 'OMM_API_OBJECT_TBL';
+ 
 define test_module = 'ext_module'; 
-define module_role = '&test_module._users'; 
+define module_role = 'om_role_&test_module'; 
 
 PROMPT ------- Clean the test database
 WHENEVER SQLERROR CONTINUE none;

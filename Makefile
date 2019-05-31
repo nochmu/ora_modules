@@ -1,7 +1,8 @@
+
 .DEFAULT_GOAL = all
 
 SQLPLUS = sqlplus
-
+SQLPATH += $(shell pwd)/sql:$(PATH)
 
 db_sys  = ${DEV_DB_SYS} as SYSDBA
 db_dba  = ${DEV_DB_DBA}
@@ -15,18 +16,14 @@ sql_exec_DBA  = $(sql_exec) $(db_dba)
 sql_exec_TEST = $(sql_exec) $(db_test)
 
 
-.PHONY: test_all  install all clean enter
+.PHONY: test install all clean enter
 
 
 test: 
-	$(sql_exec_DBA)  @test_clean.sql
-	$(sql_exec_DBA)  @test_setup.sql
-	$(sql_exec_TEST) @test.sql
-
+	$(sql_exec_DBA)  @test/test_clean.sql
+	$(sql_exec_DBA)  @test/test_setup.sql
+	$(sql_exec_TEST) @test/test.sql
+	@ echo 'all: done.'
+  
 enter:
 	$(SQLPLUS) -L $(db_sys)
-
-
-test_all: test
-	@ echo 'all: done.'
-
